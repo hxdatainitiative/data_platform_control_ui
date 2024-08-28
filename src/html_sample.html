@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Local Time and Location</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+            padding: 20px;
+            background-color: #f0f0f0;
+            color: #333;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            display: inline-block;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        .time, .location {
+            font-size: 1.5em;
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="time" id="time">Loading time...</div>
+        <div class="location" id="location">Loading location...</div>
+    </div>
+
+    <script>
+        // Function to update the local time
+        function updateTime() {
+            const now = new Date();
+            const hours = now.getHours().toString().padStart(2, '0');
+            const minutes = now.getMinutes().toString().padStart(2, '0');
+            const seconds = now.getSeconds().toString().padStart(2, '0');
+            document.getElementById('time').textContent = `Local Time: ${hours}:${minutes}:${seconds}`;
+        }
+
+        // Update the time every second
+        setInterval(updateTime, 1000);
+        updateTime();  // Initial call to set time immediately
+
+        // Function to fetch and display location
+        function displayLocation(position) {
+            const lat = position.coords.latitude;
+            const lon = position.coords.longitude;
+            const locationElement = document.getElementById('location');
+            fetch(`https://geocode.xyz/${lat},${lon}?json=1`)
+                .then(response => response.json())
+                .then(data => {
+                    const city = data.city || 'Unknown city';
+                    const country = data.country || 'Unknown country';
+                    locationElement.textContent = `Location: ${city}, ${country}`;
+                })
+                .catch(() => {
+                    locationElement.textContent = 'Unable to fetch location';
+                });
+        }
+
+        // Handle errors and fetch location
+        function handleLocationError() {
+            document.getElementById('location').textContent = 'Geolocation is not supported by this browser or access denied.';
+        }
+
+        if (navigator.geolocation) {
+            navigator.geolocation.getCurrentPosition(displayLocation, handleLocationError);
+        } else {
+            handleLocationError();
+        }
+    </script>
+</body>
+</html>
